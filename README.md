@@ -8,9 +8,9 @@
 - [x] Select link layer from available layers
 - [x] Validate required fields and geometry type
 - [x] Transform links
-- [ ] Create nodes
-- [ ] Report counts & print heads of link and node
-- [ ] Download link.csv and node.csv
+- [x] Create nodes
+- [x] Report counts & print heads of link and node
+- [x] Download link.csv and node.csv
 
 ### stop, route_version, stop_on_route (from Jore files)
 

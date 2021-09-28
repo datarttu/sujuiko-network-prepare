@@ -1,6 +1,7 @@
 library(shiny)
 library(dplyr)
 library(sf)
+library(lwgeom)
 library(readr)
 
 
@@ -38,8 +39,6 @@ validate_dr_data <- function(x) {
 transform_dr_data <- function(x) {
   link <- x %>%
     mutate(link_id = as.integer(LINK_ID),
-           i_node = NA_integer_,
-           j_node = NA_integer_,
            oneway = case_when(
              AJOSUUNTA == 2 ~ FALSE,
              AJOSUUNTA == 3 ~ TRUE,
@@ -51,7 +50,7 @@ transform_dr_data <- function(x) {
            data_source = 'Digiroad',
            source_date = format(Sys.Date(), '%Y-%m-%d'),
            geom = if_else(AJOSUUNTA == 3, st_cast(st_reverse(geom), 'GEOMETRY'), st_cast(geom, 'GEOMETRY'))) %>%
-    .[, c('link_id', 'i_node', 'j_node', 'oneway', 'link_modes', 'link_label', 'data_source', 'source_date', 'geom')] %>%
+    select(link_id, oneway, link_modes, link_label, data_source, source_date, geom) %>%
     mutate(geom = st_cast(geom, 'LINESTRING'))
   
   link_inode <- link %>%
@@ -194,14 +193,32 @@ server <- function(input, output, session) {
     ))
   })
   
-  dr_out <- withProgress(eventReactive(input$dr_run_layer_transform, {
+  dr_out <- eventReactive(input$dr_run_layer_transform, {
     req(dr_data())
     transform_dr_data(dr_data())
-  }))
+  })
+  
+  observeEvent(input$dr_run_layer_transform, {
+    req(dr_out())
+    li <- dr_out()$link
+    nd <- dr_out()$node
+    showModal(modalDialog(
+      title = 'Result layers',
+      h2(sprintf('%d nodes', nrow(nd))),
+      renderPrint(summary(nd)),
+      h2(sprintf('%d links', nrow(li))),
+      renderPrint(summary(li))
+    ))
+  })
   
   output$dr_download_links <- downloadHandler(
     filename = 'link.csv',
-    content = function(file) {write_csv(x = dr_out(), path = file)}
+    content = function(file) {write_csv(x = dr_out()$link, file = file)}
+  )
+  
+  output$dr_download_nodes <- downloadHandler(
+    filename = 'node.csv',
+    content = function(file) {write_csv(x = dr_out()$node, file = file)}
   )
   
   session$onSessionEnded(function() {stopApp()})
