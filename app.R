@@ -1,6 +1,7 @@
 library(shiny)
 library(dplyr)
 library(sf)
+library(readr)
 
 
 options(shiny.maxRequestSize = 50*1024^2) # 50 MB upload limit
@@ -25,7 +26,7 @@ validate_dr_data <- function(x) {
   d <- rbind(d, list(condition = 'AJOSUUNTA has values 2, 3, 4 only',
                      result = 'AJOSUUNTA' %in% colnames(x) & all(sort(unique(x$AJOSUUNTA)) == c(2, 3, 4))))
   d <- rbind(d, list(condition = 'LINK_ID has unique values',
-                     result = 'LINK_ID' %in% colnames(x) & any(duplicated(x$LINK_ID))))
+                     result = 'LINK_ID' %in% colnames(x) & !any(duplicated(x$LINK_ID))))
   return(d)
 }
 
@@ -50,8 +51,10 @@ transform_dr_data <- function(x) {
            data_source = 'Digiroad',
            source_date = format(Sys.Date(), '%Y-%m-%d'),
            geom = if_else(AJOSUUNTA == 3, st_cast(st_reverse(geom), 'GEOMETRY'), st_cast(geom, 'GEOMETRY'))) %>%
-    select(link_id, i_node, j_node, oneway, link_modes, link_label, data_source, source_date, geom) %>%
-    mutate(geom = st_cast(geom, 'LINESTRING'))
+    .[, c('link_id', 'i_node', 'j_node', 'oneway', 'link_modes', 'link_label', 'data_source', 'source_date', 'geom')] %>%
+    mutate(geom = st_cast(geom, 'LINESTRING')) %>%
+    mutate(geom_wkt = st_as_text(geom)) %>%
+    st_drop_geometry()
 }
 
 # UI ----
@@ -90,6 +93,18 @@ ui <- fluidPage(
       actionButton(
         inputId = 'dr_run_layer_transform',
         label = 'Transform links and create nodes'
+      ),
+      
+      downloadButton(
+        outputId = 'dr_download_links',
+        label = "Download link data",
+        icon = icon("download")
+      ),
+      
+      downloadButton(
+        outputId = 'dr_download_nodes',
+        label = "Download node data",
+        icon = icon("download")
       )
     ),
     
@@ -142,10 +157,15 @@ server <- function(input, output, session) {
     ))
   })
   
-  dr_out <- eventReactive(input$dr_run_layer_transform, {
+  dr_out <- withProgress(eventReactive(input$dr_run_layer_transform, {
     req(dr_data())
-    dt <- transform_dr_data(dr_data())
-  })
+    transform_dr_data(dr_data())
+  }))
+  
+  output$dr_download_links <- downloadHandler(
+    filename = 'link.csv',
+    content = function(file) {write_csv(x = dr_out(), path = file)}
+  )
   
   session$onSessionEnded(function() {stopApp()})
   

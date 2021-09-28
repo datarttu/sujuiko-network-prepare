@@ -7,7 +7,7 @@
 - [x] Upload single .gpkg file
 - [x] Select link layer from available layers
 - [x] Validate required fields and geometry type
-- [ ] Transform links
+- [x] Transform links
 - [ ] Create nodes
 - [ ] Report counts & print heads of link and node
 - [ ] Download link.csv and node.csv
