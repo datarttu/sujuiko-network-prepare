@@ -83,11 +83,11 @@ transform_dr_data <- function(x) {
     left_join(y = link_jnode_noded, by = 'link_id') %>%
     select(link_id, i_node, j_node, oneway, link_modes, link_label, data_source,
            source_date, geom) %>%
-    mutate(geom_wkt = st_as_text(geom)) %>%
+    mutate(geom_text = st_as_text(geom)) %>%
     st_drop_geometry()
   
   node <- node %>%
-    mutate(geom_wkt = st_as_text(geom)) %>%
+    mutate(geom_text = st_as_text(geom)) %>%
     st_drop_geometry()
   
   return(list(link = link, node = node))
