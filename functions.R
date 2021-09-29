@@ -208,3 +208,12 @@ parse_setof_jore_files <- function(files, names = files) {
               stop_on_route = stop_on_route))
 }
 
+#' Write csv with empty NAs
+#' 
+#' Calls `write_csv` with `na = ''`.
+#'
+#' @param x A tibble to write
+#' @param file File to write to
+custom_write_csv <- function(x, file) {
+  readr::write_csv(x = x, file = file, na = '')
+}

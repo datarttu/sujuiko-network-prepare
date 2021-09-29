@@ -152,12 +152,12 @@ server <- function(input, output, session) {
   
   output$dr_download_links <- downloadHandler(
     filename = 'link.csv',
-    content = function(file) {write_csv(x = dr_out()$link, file = file)}
+    content = function(file) {custom_write_csv(x = dr_out()$link, file = file)}
   )
   
   output$dr_download_nodes <- downloadHandler(
     filename = 'node.csv',
-    content = function(file) {write_csv(x = dr_out()$node, file = file)}
+    content = function(file) {custom_write_csv(x = dr_out()$node, file = file)}
   )
   
   # JORE FILES HANDLING ----
@@ -188,15 +188,15 @@ server <- function(input, output, session) {
   
   output$jore_download_stop <- downloadHandler(
     filename = 'stop.csv',
-    content = function(file) {write_csv(x = jore_res_list()$stop, file = file)}
+    content = function(file) {custom_write_csv(x = jore_res_list()$stop, file = file)}
   )
   output$jore_download_route_version <- downloadHandler(
     filename = 'route_version.csv',
-    content = function(file) {write_csv(x = jore_res_list()$route_version, file = file)}
+    content = function(file) {custom_write_csv(x = jore_res_list()$route_version, file = file)}
   )
   output$jore_download_stop_on_route <- downloadHandler(
     filename = 'stop_on_route.csv',
-    content = function(file) {write_csv(x = jore_res_list()$stop_on_route, file = file)}
+    content = function(file) {custom_write_csv(x = jore_res_list()$stop_on_route, file = file)}
   )
   
   # CLEANUP ----
