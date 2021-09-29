@@ -14,11 +14,11 @@
 
 ### stop, route_version, stop_on_route (from Jore files)
 
-- [ ] Upload multiple .txt files
-- [ ] Validate single Jore file: date range from name & txt contents
-- [ ] Transform single Jore file into stop, route_version, stop_on_route
-- [ ] Combine files
-- [ ] Combine stops into unique ones
+- [x] Upload multiple .txt files
+- [x] Validate single Jore file: date range from name & txt contents
+- [x] Transform single Jore file into stop, route_version, stop_on_route
+- [x] Combine files
+- [x] Combine stops into unique ones
 - [ ] Validate combined route_version and stop_on_route: no overlaps by route_id and validity periods
 - [ ] Report counts & print heads of stop, route_version and stop_on_route
 - [ ] Download stop.csv, route_version.csv and stop_on_route.csv

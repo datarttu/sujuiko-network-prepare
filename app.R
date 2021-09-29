@@ -68,10 +68,15 @@ ui <- fluidPage(
       fileInput(
         inputId = 'jore_route_files',
         label = 'Select Jore route files',
-        multiple = FALSE,
+        multiple = TRUE,
         accept = '.txt',
         buttonLabel = 'Browse ...',
         placeholder = 'No files selected'
+      ),
+      
+      actionButton(
+        inputId = 'jore_run_parse',
+        label = 'Parse Jore files'
       )
     )
   )
@@ -136,6 +141,36 @@ server <- function(input, output, session) {
     filename = 'node.csv',
     content = function(file) {write_csv(x = dr_out()$node, file = file)}
   )
+  
+  # JORE FILES HANDLING ----
+  jore_file_paths <- reactive({
+    files <- input$jore_route_files
+    req(files)
+    return(files$datapath)
+  })
+  
+  jore_res_list <- eventReactive(input$jore_run_parse, {
+    req(jore_file_paths())
+    parse_setof_jore_files(jore_file_paths())
+  })
+  
+  observeEvent(input$jore_run_parse, {
+    req(jore_res_list())
+    st <- jore_res_list()$stop
+    rv <- jore_res_list()$route_version
+    sor <- jore_res_list()$stop_on_route
+    showModal(modalDialog(
+      title = 'Jore results',
+      h2(sprintf('%d stops', nrow(st))),
+      renderPrint(summary(st)),
+      h2(sprintf('%d route versions', nrow(rv))),
+      renderPrint(summary(rv)),
+      h2(sprintf('%d stops on route', nrow(sor))),
+      renderPrint(summary(sor))
+    ))
+  })
+  
+  # CLEANUP ----
   
   session$onSessionEnded(function() {stopApp()})
   
