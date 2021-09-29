@@ -192,7 +192,7 @@ parse_jore_file <- function(file, name = file) {
 #' @return List of stop, route_version and stop_on_route tibbles
 parse_setof_jore_files <- function(files, names = files) {
   stopifnot(all(file.exists(files)))
-  res <- mapply(parse_jore_file, files, names)
+  res <- mapply(parse_jore_file, files, names, SIMPLIFY = FALSE)
   
   all_stops <- do.call(rbind, lapply(res, function(x) x$stop))
   # NOTE: Possible duplicate stop_ids with different attribute values are simply
