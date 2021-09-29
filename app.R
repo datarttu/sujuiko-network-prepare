@@ -143,15 +143,13 @@ server <- function(input, output, session) {
   )
   
   # JORE FILES HANDLING ----
-  jore_file_paths <- reactive({
-    files <- input$jore_route_files
-    req(files)
-    return(files$datapath)
-  })
+  jore_file_info <- reactive(input$jore_route_files)
   
   jore_res_list <- eventReactive(input$jore_run_parse, {
-    req(jore_file_paths())
-    parse_setof_jore_files(jore_file_paths())
+    req(jore_file_info())
+    files <- jore_file_info()$datapath
+    names <- jore_file_info()$name
+    parse_setof_jore_files(files, names)
   })
   
   observeEvent(input$jore_run_parse, {

@@ -107,10 +107,11 @@ transform_dr_data <- function(x) {
 #' The file name must be of format `<route_id>_<valid_from_yyyymmdd>_<valid_to_yyyymmdd>.txt`.
 #'
 #' @param file Path of the `.txt` file
+#' @param name (Original) file name, if different from `file`
 #'
 #' @return List of stop, route_version and stop_on_route tibbles
-parse_jore_file <- function(file) {
-  fname_els <- str_split_fixed(string = file, pattern = '_', n = 3)
+parse_jore_file <- function(file, name = file) {
+  fname_els <- str_split_fixed(string = name, pattern = '_', n = 3)
   if (ncol(fname_els) < 3) {
     stop('File name must be like <route_id>_<valid_from_yyyymmdd>_<valid_to_yyyymmdd>.txt')
   }
@@ -121,7 +122,10 @@ parse_jore_file <- function(file) {
       stopifnot(valid_from <= valid_to)
     }, 
     error = function(e) {
-      stop('From and to dates must be of format yyyymmdd, and from <= to')
+      msg <- paste(e,
+                   sprintf('File %s:', file),
+                   'From and to dates must be of format yyyymmdd, and from <= to')
+      stop(msg)
     })
   
   raw_lines <- readLines(con = file, encoding = 'latin1')
@@ -182,12 +186,13 @@ parse_jore_file <- function(file) {
 
 #' Parse a set of Jore route files
 #'
-#' @param file Paths of the `.txt` file(s)
+#' @param files Paths of the `.txt` file(s)
+#' @param names (Original) file names, if different from `files`
 #'
 #' @return List of stop, route_version and stop_on_route tibbles
-parse_setof_jore_files <- function(files) {
+parse_setof_jore_files <- function(files, names = files) {
   stopifnot(all(file.exists(files)))
-  res <- lapply(files, parse_jore_file)
+  res <- mapply(parse_jore_file, files, names)
   
   all_stops <- do.call(rbind, lapply(res, function(x) x$stop))
   # NOTE: Possible duplicate stop_ids with different attribute values are simply
