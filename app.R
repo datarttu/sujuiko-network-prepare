@@ -77,6 +77,24 @@ ui <- fluidPage(
       actionButton(
         inputId = 'jore_run_parse',
         label = 'Parse Jore files'
+      ),
+      
+      downloadButton(
+        outputId = 'jore_download_stop',
+        label = "Download stops",
+        icon = icon("download")
+      ),
+      
+      downloadButton(
+        outputId = 'jore_download_route_version',
+        label = "Download route versions",
+        icon = icon("download")
+      ),
+      
+      downloadButton(
+        outputId = 'jore_download_stop_on_route',
+        label = "Download stops on route",
+        icon = icon("download")
       )
     )
   )
@@ -167,6 +185,19 @@ server <- function(input, output, session) {
       renderPrint(summary(sor))
     ))
   })
+  
+  output$jore_download_stop <- downloadHandler(
+    filename = 'stop.csv',
+    content = function(file) {write_csv(x = jore_res_list()$stop, file = file)}
+  )
+  output$jore_download_route_version <- downloadHandler(
+    filename = 'route_version.csv',
+    content = function(file) {write_csv(x = jore_res_list()$route_version, file = file)}
+  )
+  output$jore_download_stop_on_route <- downloadHandler(
+    filename = 'stop_on_route.csv',
+    content = function(file) {write_csv(x = jore_res_list()$stop_on_route, file = file)}
+  )
   
   # CLEANUP ----
   

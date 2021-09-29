@@ -20,5 +20,5 @@
 - [x] Combine files
 - [x] Combine stops into unique ones
 - [ ] Validate combined route_version and stop_on_route: no overlaps by route_id and validity periods
-- [ ] Report counts & print heads of stop, route_version and stop_on_route
-- [ ] Download stop.csv, route_version.csv and stop_on_route.csv
+- [x] Report counts & print heads of stop, route_version and stop_on_route
+- [x] Download stop.csv, route_version.csv and stop_on_route.csv
