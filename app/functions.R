@@ -149,6 +149,7 @@ parse_jore_file <- function(file, name = file) {
            source_date = Sys.Date(),
            parent_stop_id = NA_integer_) %>%
     st_as_sf(coords = c('stop_lon', 'stop_lat'), crs = 4326) %>%
+    st_transform(crs = 3067) %>%
     mutate(geom_text = st_as_text(geometry)) %>%
     st_drop_geometry() %>%
     select(stop_id, stop_radius_m, stop_mode, stop_code, stop_name, stop_place,
