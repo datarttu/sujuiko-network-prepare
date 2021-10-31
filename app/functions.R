@@ -40,11 +40,11 @@ validate_dr_data <- function(x) {
   return(d)
 }
 
-#' Transform from Digiroad links to sujuiko links and nodes
+#' Transform from Digiroad links to sujuiko links
 #'
 #' @param x dr_linkki layer, returned by `st_read()`
 #'
-#' @return A list with `link` and `node` data.frames
+#' @return A data.frame of links
 transform_dr_data <- function(x) {
   link <- x %>%
     mutate(link_id = as.integer(LINK_ID),
@@ -60,46 +60,11 @@ transform_dr_data <- function(x) {
            source_date = format(Sys.Date(), '%Y-%m-%d'),
            geom = if_else(AJOSUUNTA == 3, st_cast(st_reverse(geom), 'GEOMETRY'), st_cast(geom, 'GEOMETRY'))) %>%
     select(link_id, oneway, link_modes, link_label, data_source, source_date, geom) %>%
-    mutate(geom = st_cast(geom, 'LINESTRING'))
-  
-  link_inode <- link %>%
-    select(link_id, geom) %>%
-    mutate(geom = st_startpoint(geom))
-  
-  link_jnode <- link %>%
-    select(link_id, geom) %>%
-    mutate(geom = st_endpoint(geom))
-  
-  node <- rbind(link_inode, link_jnode) %>%
-    select(geom) %>%
-    distinct() %>%
-    # Number the nodes by X and Y order
-    mutate(nd_x = st_coordinates(geom)[, 'X'], nd_y = st_coordinates(geom)[, 'Y']) %>%
-    arrange(nd_x, nd_y) %>%
-    mutate(node_id = row_number()) %>%
-    select(node_id, geom)
-  
-  link_inode_noded <- st_join(x = link_inode, y = node, join = st_intersects) %>%
-    st_drop_geometry() %>%
-    select(link_id, i_node = node_id)
-  
-  link_jnode_noded <- st_join(x = link_jnode, y = node, join = st_intersects) %>%
-    st_drop_geometry() %>%
-    select(link_id, j_node = node_id)
-  
-  link <- link %>%
-    left_join(y = link_inode_noded, by = 'link_id') %>%
-    left_join(y = link_jnode_noded, by = 'link_id') %>%
-    select(link_id, i_node, j_node, oneway, link_modes, link_label, data_source,
-           source_date, geom) %>%
+    mutate(geom = st_cast(geom, 'LINESTRING')) %>%
     mutate(geom_text = st_as_text(geom)) %>%
     st_drop_geometry()
   
-  node <- node %>%
-    mutate(geom_text = st_as_text(geom)) %>%
-    st_drop_geometry()
-  
-  return(list(link = link, node = node))
+  return(link)
 }
 
 #' Parse single Jore route file

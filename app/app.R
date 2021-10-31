@@ -44,7 +44,7 @@ ui <- fluidPage(
       
       actionButton(
         inputId = 'dr_run_layer_transform',
-        label = 'Transform links and create nodes'
+        label = 'Transform links'
       ),
       
       downloadButton(
@@ -53,11 +53,6 @@ ui <- fluidPage(
         icon = icon("download")
       ),
       
-      downloadButton(
-        outputId = 'dr_download_nodes',
-        label = "Download node data",
-        icon = icon("download")
-      )
     ),
     
     column(
@@ -139,12 +134,9 @@ server <- function(input, output, session) {
   
   observeEvent(input$dr_run_layer_transform, {
     req(dr_out())
-    li <- dr_out()$link
-    nd <- dr_out()$node
+    li <- dr_out()
     showModal(modalDialog(
       title = 'Result layers',
-      h2(sprintf('%d nodes', nrow(nd))),
-      renderPrint(summary(nd)),
       h2(sprintf('%d links', nrow(li))),
       renderPrint(summary(li))
     ))
@@ -152,12 +144,7 @@ server <- function(input, output, session) {
   
   output$dr_download_links <- downloadHandler(
     filename = 'link.csv',
-    content = function(file) {custom_write_csv(x = dr_out()$link, file = file)}
-  )
-  
-  output$dr_download_nodes <- downloadHandler(
-    filename = 'node.csv',
-    content = function(file) {custom_write_csv(x = dr_out()$node, file = file)}
+    content = function(file) {custom_write_csv(x = dr_out(), file = file)}
   )
   
   # JORE FILES HANDLING ----
