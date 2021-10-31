@@ -182,6 +182,9 @@ parse_jore_file <- function(file, name = file) {
   route_version <- route_version %>% 
     select(route_ver_id, route, dir, valid_during, route_mode)
   
+  stop <- stop %>%
+    filter(stop_id %in% stop_on_route$stop_id)
+  
   return(list(stop = stop, route_version = route_version, stop_on_route = stop_on_route))
 }
 
